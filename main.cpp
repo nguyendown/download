@@ -139,6 +139,7 @@ int main(int argc, char *argv[]) {
         std::ifstream is(out_part, std::ios::binary);
         of << is.rdbuf();
         is.close();
+        std::remove(out_part.c_str());
     }
 
     std::cout << "Done.\n";
