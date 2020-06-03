@@ -22,16 +22,20 @@ static size_t cb(char *ptr, size_t size, size_t nmemb, void *userdata) {
 }
 
 void my_curl_download(CURL *curl_new, std::string out, int64_t r_begin, int64_t r_end) {
+    int64_t part_size;
     CURL *curl = curl_easy_duphandle(curl_new);
     std::string range;
     if (curl == 0)
         return;
-    std::ofstream of(out, std::ios::binary);
+    
+    std::ofstream of(out, std::ios::binary | std::ios::app);
     if (!of.is_open())
         return;
-    //std::cout << std::filesystem::file_size(out) << '\n';
-    range = std::to_string(r_begin) + '-' + std::to_string(r_end);
-    //std::cout << range << '\n';
+    part_size = std::filesystem::file_size(out);
+    if (part_size >= r_end - r_begin)
+        return;
+    range = std::to_string(r_begin + part_size) + '-' + std::to_string(r_end);
+    std::cout << range << '\n';
     curl_easy_setopt(curl, CURLOPT_RANGE, range.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &of);
     curl_easy_perform(curl);
@@ -124,6 +128,8 @@ int main(int argc, char *argv[]) {
         t.join();
     }
 
+    std::cout << "Merging.\n";
+
     of.open(out, std::ios::binary);
     if (!of.is_open())
         return 1;
@@ -135,5 +141,5 @@ int main(int argc, char *argv[]) {
         is.close();
     }
 
-    std::cout << "i got here\n";
+    std::cout << "Done.\n";
 }
