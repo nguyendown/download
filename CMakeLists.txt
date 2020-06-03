@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.0)
+project(downloader)
+find_package(Threads)
+find_package(CURL REQUIRED)
+add_executable(main main.cpp)
+target_compile_features(main PRIVATE cxx_std_17)
+target_link_libraries(main PRIVATE CURL::libcurl Threads::Threads)
